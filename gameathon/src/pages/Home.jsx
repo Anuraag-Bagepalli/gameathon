@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, Box, BrainCircuit, CalendarDays, Code2, Gamepad2, Globe2, MapPin, Radio, Sparkles, Trophy, Users } from 'lucide-react';
-import hero from '../assets/arena-hero.png';
+const hero = 'https://raw.githubusercontent.com/Anuraag-Bagepalli/gameathon/main/gameathon/src/assets/arena-hero.png';
 
 const tracks = [
   { icon: Code2, code: 'BUILD_01', title: 'Create from zero', text: 'Turn an original idea into a playable game within the event window.' },
