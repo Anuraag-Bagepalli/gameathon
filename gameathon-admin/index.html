@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gameathon Control // Registrations</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Loading Spinner -->
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Loading dashboard...</p>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container" id="mainContainer" style="display: none;">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-satellite-dish"></i> Gameathon 8.0 Control</h1>
+                <p>2026 creator registrations and team review</p>
+            </div>
+            <div class="header-actions">
+                <button class="theme-admin-btn" id="themeAdminBtn" onclick="toggleAdminTheme()" aria-label="Toggle color theme"><i class="fas fa-sun"></i></button>
+                <button class="refresh-btn" onclick="refreshData()"><i class="fas fa-sync-alt"></i> Refresh</button>
+            </div>
+        </header>
+
+        <!-- Statistics Cards -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-icon total">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-number" id="totalApps">0</span>
+                    <span class="stat-label">Total Applications</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon pending">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-number" id="pendingApps">0</span>
+                    <span class="stat-label">Pending</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon approved">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-number" id="approvedApps">0</span>
+                    <span class="stat-label">Approved</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon rejected">
+                    <i class="fas fa-times-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-number" id="rejectedApps">0</span>
+                    <span class="stat-label">Rejected</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon unique">
+                    <i class="fas fa-check-double"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-number" id="uniqueUTR">0</span>
+                    <span class="stat-label">Unique UTR</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon duplicate">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-number" id="duplicateUTR">0</span>
+                    <span class="stat-label">Duplicate UTR</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-section">
+            <div class="filter-group">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search applications..." onkeyup="applyFilters()">
+                </div>
+
+                <select id="statusFilter" onchange="applyFilters()">
+                    <option value="all">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+
+                <select id="utrFilter" onchange="applyFilters()">
+                    <option value="all">All UTR Status</option>
+                    <option value="unique">Unique UTR</option>
+                    <option value="duplicate">Duplicate UTR</option>
+                    <option value="missing">Missing UTR</option>
+                </select>
+
+                <button class="clear-filters-btn" onclick="clearFilters()">
+                    <i class="fas fa-times"></i> Clear Filters
+                </button>
+            </div>
+        </div>
+
+        <!-- Applications List -->
+        <div class="applications-section">
+            <div id="applicationsContainer">
+                <!-- Applications will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-edit"></i> Edit Application</h2>
+                <button class="close-btn" onclick="closeEditModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm">
+                    <input type="hidden" id="editId">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editTeamName">Team Name *</label>
+                            <input type="text" id="editTeamName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editTeamLeader">Team Leader *</label>
+                            <input type="text" id="editTeamLeader" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editEmail">Email *</label>
+                            <input type="email" id="editEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editPhone">Phone *</label>
+                            <input type="tel" id="editPhone" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editCollege">College *</label>
+                            <input type="text" id="editCollege" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editMemberCount">Member Count</label>
+                            <input type="number" id="editMemberCount" min="1" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editParticipationType">Participation Type</label>
+                            <input type="text" id="editParticipationType">
+                        </div>
+                        <div class="form-group">
+                            <label for="editTrainingOption">Training Option</label>
+                            <input type="text" id="editTrainingOption">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editUTRNumber">UTR Number</label>
+                        <input type="text" id="editUTRNumber" onblur="validateUTR(this.value)">
+                        <div id="utrValidation" class="validation-message"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editTeamMembers">Team Members (comma separated)</label>
+                        <textarea id="editTeamMembers" rows="3" placeholder="Member 1, Member 2, Member 3..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editPaymentScreenshot">Payment Screenshot URL</label>
+                        <input type="url" id="editPaymentScreenshot">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveEdit()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
