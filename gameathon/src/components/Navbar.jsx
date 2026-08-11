@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Gamepad2, Menu, Moon, Sun, X } from 'lucide-react';
+import { Menu, Moon, Sun, X } from 'lucide-react';
+
+import logoImg from '../assets/logo.png';
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -11,7 +13,7 @@ export default function Navbar() {
     <nav className="navbar">
       <div className="container nav-content">
         <NavLink to="/" className="logo" onClick={() => setOpen(false)}>
-          <span className="logo-mark"><Gamepad2 size={21} /></span>
+          <img src={logoImg} alt="logo" style={{ height: 36, width: 'auto', marginRight: 4 }} />
           <span>GAME<span>ATHON</span></span><small>8.0</small>
         </NavLink>
         <button className="nav-toggle" onClick={() => setOpen(!open)} aria-label="Toggle navigation" aria-expanded={open}>

@@ -117,6 +117,11 @@ const registrationSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  nationality: {
+    type: String,
+    enum: ['Indian', 'Foreign'],
+    default: 'Indian'
+  },
   status: {
     type: String,
     enum: ['pending', 'approved', 'rejected'],
@@ -348,6 +353,46 @@ app.get('/health', (req, res) => {
     email: 'Configured',
     whatsappGroup: WHATSAPP_GROUP_LINK ? 'Configured' : 'Not Set'
   });
+});
+
+// Register new application
+app.post('/api/register', async (req, res) => {
+  try {
+    const data = req.body;
+    
+    // Parse teamMembers if it's sent as a JSON string (for backwards compatibility if FormData is still used)
+    if (typeof data.teamMembers === 'string') {
+      try { data.teamMembers = JSON.parse(data.teamMembers); } catch(e) {}
+    }
+
+    // Convert UTR to uppercase if provided
+    if (data.utrNumber) {
+      data.utrNumber = data.utrNumber.toUpperCase();
+    }
+
+    // Check UTR uniqueness if Indian
+    if (data.nationality === 'Indian' && data.utrNumber) {
+      const existing = await Registration.findOne({ utrNumber: data.utrNumber });
+      if (existing) {
+        return res.status(400).json({ message: 'UTR number already exists. Please verify your payment details.' });
+      }
+    } else if (data.nationality === 'Foreign') {
+      // Force UTR to be empty or a marker for foreign nationals
+      data.utrNumber = 'FOREIGN-N/A';
+    }
+
+    const registration = new Registration(data);
+    await registration.save();
+
+    console.log(`✅ New Registration: ${registration.teamName} (${registration.nationality})`);
+    res.status(201).json({ message: 'Registration successful', registration });
+  } catch (error) {
+    console.error('Error creating registration:', error);
+    res.status(500).json({ 
+      message: 'Failed to submit registration',
+      error: error.message 
+    });
+  }
 });
 
 // Get all applications
