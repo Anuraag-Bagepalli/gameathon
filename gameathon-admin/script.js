@@ -730,10 +730,27 @@ function showToast(message, type = 'info') {
     }, 4000);
 }
 
-// Close modal when clicking outside
+// Close modal and sidebars when clicking outside
 window.onclick = function(event) {
     const modal = document.getElementById('editModal');
     if (event.target === modal) {
         closeEditModal();
+    }
+    
+    // Close sidebar on mobile
+    const sidebar = document.querySelector('.sidebar');
+    const menuBtn = document.querySelector('.mobile-menu-btn');
+    if (sidebar && sidebar.classList.contains('active') && window.innerWidth <= 1024) {
+        if (!sidebar.contains(event.target) && (!menuBtn || !menuBtn.contains(event.target))) {
+            sidebar.classList.remove('active');
+        }
+    }
+}
+
+// Toggle Mobile Menu
+function toggleMobileMenu() {
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) {
+        sidebar.classList.toggle('active');
     }
 }
