@@ -9,9 +9,9 @@ const initial = {
   phone: '',
   college: '',
   participationType: 'offline',
-  trainingOption: 'not-applicable',
-  memberCount: '1',
-  teamMembers: [''],
+  trainingOption: 'without-training',
+  memberCount: '2',
+  teamMembers: ['', ''],
   nationality: 'Indian',
   utrNumber: ''
 };
@@ -39,17 +39,26 @@ export default function Registration() {
     teamMembers: f.teamMembers.map((m, n) => n === i ? value : m)
   }));
 
+  const getPrice = () => {
+    if (form.participationType === 'offline') {
+      return form.trainingOption === 'with-training' ? 699 : 599;
+    } else {
+      return form.trainingOption === 'with-training' ? 499 : 399;
+    }
+  };
+
   const submit = async e => {
     e.preventDefault();
     setState({ busy: true, type: '', text: '' });
     
     try {
+      const payload = { ...form, teamLeader: form.teamMembers[0] };
       const r = await fetch(`${API_URL}/api/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(form)
+        body: JSON.stringify(payload)
       });
       
       const d = await r.json();
@@ -90,34 +99,62 @@ export default function Registration() {
 
           <div className="form-row">
             <Field label="Team name" name="teamName" value={form.teamName} onChange={change} />
-            <Field label="Team lead" name="teamLeader" value={form.teamLeader} onChange={change} />
+            <Field label="Email" name="email" type="email" value={form.email} onChange={change} />
           </div>
 
           <div className="form-row">
-            <Field label="Email" name="email" type="email" value={form.email} onChange={change} />
             <Field label="Phone" name="phone" type="tel" pattern="[0-9+ -]{10,15}" value={form.phone} onChange={change} />
+            <Field label="College / organization" name="college" value={form.college} onChange={change} />
           </div>
-
-          <Field label="College / organization" name="college" value={form.college} onChange={change} />
           
-          <Select label="Team size" name="memberCount" value={form.memberCount} onChange={change} options={[[1,'1 creator'],[2,'2 creators'],[3,'3 creators'],[4,'4 creators']]} />
+          <div className="form-row">
+            <div className="form-group">
+              <label>Participation Type</label>
+              <div style={{ display: 'flex', gap: '20px', padding: '10px 0' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', textTransform: 'none', letterSpacing: 'normal', color: 'var(--text)' }}>
+                  <input type="radio" name="participationType" value="offline" checked={form.participationType === 'offline'} onChange={change} />
+                  Offline
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', textTransform: 'none', letterSpacing: 'normal', color: 'var(--text)' }}>
+                  <input type="radio" name="participationType" value="online" checked={form.participationType === 'online'} onChange={change} />
+                  Online
+                </label>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label>Training Option</label>
+              <div style={{ display: 'flex', gap: '20px', padding: '10px 0' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', textTransform: 'none', letterSpacing: 'normal', color: 'var(--text)' }}>
+                  <input type="radio" name="trainingOption" value="with-training" checked={form.trainingOption === 'with-training'} onChange={change} />
+                  With Training
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', textTransform: 'none', letterSpacing: 'normal', color: 'var(--text)' }}>
+                  <input type="radio" name="trainingOption" value="without-training" checked={form.trainingOption === 'without-training'} onChange={change} />
+                  Without Training
+                </label>
+              </div>
+            </div>
+          </div>
+          
+          <Select label="Team size" name="memberCount" value={form.memberCount} onChange={change} options={[[2,'2 creators'],[3,'3 creators'],[4,'4 creators']]} />
           
           <div className="form-row">
             {form.teamMembers.map((m, i) => (
-              <Field key={i} label={`Creator ${i + 1}`} value={m} onChange={e => member(i, e.target.value)} />
+              <Field key={i} label={i === 0 ? `Creator 1 (Team Lead)` : `Creator ${i + 1}`} value={m} onChange={e => member(i, e.target.value)} />
             ))}
           </div>
 
           {form.nationality === 'Indian' ? (
             <div style={{ padding: '20px', border: '1px solid var(--line)', borderRadius: '8px', marginBottom: '20px', background: 'rgba(168,85,247,.04)' }}>
-              <h3 style={{ marginBottom: '15px', fontSize: '1.1rem', color: 'var(--accent)', textTransform: 'uppercase' }}>Payment Details</h3>
+              <h3 style={{ marginBottom: '15px', fontSize: '1.1rem', color: 'var(--accent)', textTransform: 'uppercase' }}>Payment Details - Amount: ₹{getPrice()}</h3>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', alignItems: 'flex-start' }}>
                 <div style={{ flex: '1', minWidth: '200px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '30px', border: '1px dashed var(--accent)', borderRadius: '8px', background: 'var(--surface)' }}>
                   <QrCode size={48} color="var(--accent)" style={{ opacity: 0.5, marginBottom: '10px' }} />
                   <span style={{ fontSize: '0.8rem', color: 'var(--muted)', textAlign: 'center' }}>[UPI QR Placeholder]</span>
                 </div>
                 <div style={{ flex: '2', minWidth: '250px' }}>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginBottom: '15px' }}>Please scan the QR code to complete the registration fee payment. Enter your transaction UTR number below.</p>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginBottom: '15px' }}>Please scan the QR code to complete the registration fee payment of <strong>₹{getPrice()}</strong>. Enter your transaction UTR number below.</p>
                   <Field label="Transaction UTR Number" name="utrNumber" value={form.utrNumber} onChange={change} placeholder="Enter 12-digit UTR" required={true} />
                 </div>
               </div>
