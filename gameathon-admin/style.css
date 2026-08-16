@@ -495,3 +495,97 @@ html[data-theme="dark"] .data-table tbody tr:hover {
     .main-content { margin-left: 0; }
     .stats-row { grid-template-columns: 1fr 1fr; }
 }
+
+/* Slide-over Details Panel */
+.panel-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.4);
+    z-index: 1040;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+.panel-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+.details-panel {
+    position: fixed;
+    top: 0; right: -400px;
+    width: 400px; max-width: 100%;
+    height: 100vh;
+    background: var(--bg-surface);
+    box-shadow: -4px 0 24px rgba(0,0,0,0.1);
+    z-index: 1050;
+    transition: right 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+.details-panel.active {
+    right: 0;
+}
+.panel-header {
+    padding: 24px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.panel-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+}
+.panel-body {
+    padding: 24px;
+    flex: 1;
+    overflow-y: auto;
+}
+.detail-section {
+    margin-bottom: 24px;
+}
+.detail-section h4 {
+    font-size: 13px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+}
+.detail-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+.detail-item i {
+    color: var(--text-secondary);
+    margin-right: 12px;
+    margin-top: 4px;
+    width: 16px;
+    text-align: center;
+}
+.detail-item-content {
+    flex: 1;
+}
+.detail-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 2px;
+}
+.detail-value {
+    font-size: 14px;
+    color: var(--text-primary);
+    word-break: break-all;
+}
+.member-tag {
+    display: inline-block;
+    padding: 4px 10px;
+    background: var(--bg-main);
+    border-radius: 4px;
+    font-size: 13px;
+    margin: 0 8px 8px 0;
+    border: 1px solid var(--border-color);
+}
+.clickable-row {
+    cursor: pointer;
+}
+

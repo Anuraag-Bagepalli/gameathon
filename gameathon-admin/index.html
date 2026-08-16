@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gameathon Admin Portal</title>
+    <title>Gameathon Admin Portal - Dashboard</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -31,10 +31,10 @@
             </div>
             
             <nav class="sidebar-nav">
-                <a href="#" class="nav-item active" onclick="document.querySelector('.dashboard-content').scrollIntoView({behavior: 'smooth'})">
+                <a href="index.html" class="nav-item active">
                     <i class="fas fa-border-all"></i> Dashboard
                 </a>
-                <a href="#" class="nav-item" onclick="document.querySelector('.table-section').scrollIntoView({behavior: 'smooth'})">
+                <a href="applications.html" class="nav-item">
                     <i class="fas fa-clipboard-list"></i> Applications
                 </a>
             </nav>
@@ -54,9 +54,9 @@
                     <h2 class="page-title">Admin Portal</h2>
                 </div>
                 <div class="navbar-center">
-                    <div class="search-bar">
+                    <div class="search-bar" style="visibility: hidden;">
                         <i class="fas fa-search"></i>
-                        <input type="text" id="searchInput" placeholder="Search applications..." onkeyup="applyFilters()">
+                        <input type="text" placeholder="Search...">
                     </div>
                 </div>
                 <div class="navbar-right">
@@ -138,127 +138,8 @@
                     </div>
                 </div>
 
-                <!-- Recent Registrations Table -->
-                <div class="table-section">
-                    <div class="table-header">
-                        <h3>Recent Registrations</h3>
-                        <div class="table-filters">
-                            <select id="statusFilter" onchange="applyFilters()">
-                                <option value="all">All Status</option>
-                                <option value="pending">Pending</option>
-                                <option value="approved">Approved</option>
-                                <option value="rejected">Rejected</option>
-                            </select>
-                            <select id="utrFilter" onchange="applyFilters()">
-                                <option value="all">All UTR</option>
-                                <option value="unique">Unique</option>
-                                <option value="duplicate">Duplicate</option>
-                                <option value="missing">Missing</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="table-responsive">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>TEAM / LEADER</th>
-                                    <th>COLLEGE</th>
-                                    <th>DATE</th>
-                                    <th>STATUS</th>
-                                    <th class="text-right">ACTION</th>
-                                </tr>
-                            </thead>
-                            <tbody id="applicationsContainer">
-                                <!-- Table rows rendered here -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
             </div>
         </main>
-    </div>
-
-    <!-- Edit Modal (Preserved functionality) -->
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2><i class="fas fa-edit"></i> Edit Application</h2>
-                <button class="close-btn" onclick="closeEditModal()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="editForm">
-                    <input type="hidden" id="editId">
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="editTeamName">Team Name *</label>
-                            <input type="text" id="editTeamName" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="editTeamLeader">Team Leader *</label>
-                            <input type="text" id="editTeamLeader" required>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="editEmail">Email *</label>
-                            <input type="email" id="editEmail" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="editPhone">Phone *</label>
-                            <input type="tel" id="editPhone" required>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="editCollege">College *</label>
-                            <input type="text" id="editCollege" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="editMemberCount">Member Count</label>
-                            <input type="number" id="editMemberCount" min="1" required>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="editParticipationType">Participation Type</label>
-                            <input type="text" id="editParticipationType">
-                        </div>
-                        <div class="form-group">
-                            <label for="editTrainingOption">Training Option</label>
-                            <input type="text" id="editTrainingOption">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="editUTRNumber">UTR Number</label>
-                        <input type="text" id="editUTRNumber" onblur="validateUTR(this.value)">
-                        <div id="utrValidation" class="validation-message"></div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="editTeamMembers">Team Members (comma separated)</label>
-                        <textarea id="editTeamMembers" rows="3" placeholder="Member 1, Member 2, Member 3..."></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="editPaymentScreenshot">Payment Screenshot URL</label>
-                        <input type="url" id="editPaymentScreenshot">
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="saveEdit()">Save Changes</button>
-            </div>
-        </div>
     </div>
 
     <!-- Toast Notifications -->

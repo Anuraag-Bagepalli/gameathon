@@ -18,7 +18,9 @@ function toggleAdminTheme() {
     updateAdminThemeIcon();
     
     // Re-render charts to match theme
-    if (trendChartInstance) renderCharts();
+    if (document.getElementById('trendChart')) {
+        renderCharts();
+    }
 }
 
 function updateAdminThemeIcon() {
@@ -45,7 +47,7 @@ async function loadDashboard() {
         hideLoading();
     } catch (error) {
         hideLoading();
-        showToast('Error loading dashboard: ' + error.message, 'error');
+        showToast('Error loading data: ' + error.message, 'error');
     }
 }
 
@@ -75,12 +77,17 @@ async function fetchApplications() {
         // Validate UTR numbers
         await validateAllUTRs();
         
-        // Update UI
-        updateStatistics();
-        renderApplications();
-        renderCharts();
+        // Update UI based on which page we are on
+        if (document.getElementById('totalApps')) {
+            updateStatistics();
+            renderCharts();
+        }
         
-        showToast('Dashboard loaded successfully!', 'success');
+        if (document.getElementById('applicationsContainer')) {
+            renderApplications();
+        }
+        
+        showToast('Data loaded successfully!', 'success');
     } catch (error) {
         console.error('Error fetching applications:', error);
         throw error;
@@ -122,7 +129,7 @@ async function validateAllUTRs() {
     });
 }
 
-// Update statistics
+// Update statistics (Dashboard only)
 function updateStatistics() {
     const stats = {
         total: allApplications.length,
@@ -141,7 +148,7 @@ function updateStatistics() {
     document.getElementById('duplicateUTR').textContent = stats.duplicate;
 }
 
-// Render Charts
+// Render Charts (Dashboard only)
 function renderCharts() {
     const isDark = document.documentElement.dataset.theme === 'dark';
     const textColor = isDark ? '#94a3b8' : '#64748b';
@@ -220,9 +227,10 @@ function renderCharts() {
     });
 }
 
-// Render applications (Table)
+// Render applications (Table only)
 function renderApplications() {
     const container = document.getElementById('applicationsContainer');
+    if (!container) return; // Guard
     
     if (filteredApplications.length === 0) {
         container.innerHTML = `
@@ -270,7 +278,7 @@ function renderApplicationRow(app) {
     
     // Action buttons
     let actionButtons = `
-        <button class="action-btn" title="Edit Application" onclick="editApplication('${app._id}')">
+        <button class="action-btn" title="Edit Application" onclick="event.stopPropagation(); editApplication('${app._id}')">
             <i class="fas fa-edit"></i>
         </button>
     `;
@@ -278,23 +286,23 @@ function renderApplicationRow(app) {
     if (statusClass === 'pending') {
         const acceptDisabled = validation && !validation.isUnique ? 'disabled' : '';
         actionButtons += `
-            <button class="action-btn accept" title="Approve" onclick="updateStatus('${app._id}', 'approved')" ${acceptDisabled}>
+            <button class="action-btn accept" title="Approve" onclick="event.stopPropagation(); updateStatus('${app._id}', 'approved')" ${acceptDisabled}>
                 <i class="fas fa-check"></i>
             </button>
-            <button class="action-btn reject" title="Reject" onclick="updateStatus('${app._id}', 'rejected')">
+            <button class="action-btn reject" title="Reject" onclick="event.stopPropagation(); updateStatus('${app._id}', 'rejected')">
                 <i class="fas fa-times"></i>
             </button>
         `;
     }
     
     actionButtons += `
-        <button class="action-btn reject" title="Delete" onclick="deleteApplication('${app._id}', '${String(app.teamName || '').replace(/'/g, "\\'")}')">
+        <button class="action-btn reject" title="Delete" onclick="event.stopPropagation(); deleteApplication('${app._id}', '${String(app.teamName || '').replace(/'/g, "\\'")}')">
             <i class="fas fa-trash"></i>
         </button>
     `;
     
     return `
-        <tr>
+        <tr class="clickable-row" onclick="openDetailsPanel('${app._id}')">
             <td>
                 <div class="team-info">
                     <span class="team-name">${app.teamName}</span>
@@ -318,11 +326,140 @@ function renderApplicationRow(app) {
     `;
 }
 
+// Details Panel functions
+function openDetailsPanel(id) {
+    const app = allApplications.find(a => a._id === id);
+    if (!app) return;
+    
+    document.getElementById('panelTeamName').textContent = app.teamName;
+    
+    const registrationDate = new Date(app.registrationDate).toLocaleDateString('en-IN', {
+        year: 'numeric', month: 'short', day: 'numeric'
+    });
+    
+    let teamMembersHtml = '';
+    if (app.teamMembers && app.teamMembers.length > 0) {
+        teamMembersHtml = `
+            <div class="detail-section">
+                <h4>Team Members</h4>
+                <div>
+                    ${app.teamMembers.map(member => `<span class="member-tag">${member}</span>`).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    let paymentLink = 'N/A';
+    if (app.paymentScreenshot) {
+        const screenshotUrl = /^https?:/i.test(app.paymentScreenshot) ? app.paymentScreenshot : `/${app.paymentScreenshot.replace(/^\/?(?:\.\/)?/, '')}`;
+        paymentLink = `<a href="${screenshotUrl}" target="_blank" rel="noopener" style="color: var(--brand-primary);">View Screenshot</a>`;
+    }
+
+    const panelBody = document.getElementById('panelBody');
+    panelBody.innerHTML = `
+        <div class="detail-section">
+            <h4>Contact Info</h4>
+            <div class="detail-item">
+                <i class="fas fa-user"></i>
+                <div class="detail-item-content">
+                    <div class="detail-label">Leader</div>
+                    <div class="detail-value">${app.teamLeader}</div>
+                </div>
+            </div>
+            <div class="detail-item">
+                <i class="fas fa-envelope"></i>
+                <div class="detail-item-content">
+                    <div class="detail-label">Email</div>
+                    <div class="detail-value">${app.email}</div>
+                </div>
+            </div>
+            <div class="detail-item">
+                <i class="fas fa-phone"></i>
+                <div class="detail-item-content">
+                    <div class="detail-label">Phone</div>
+                    <div class="detail-value">${app.phone}</div>
+                </div>
+            </div>
+            <div class="detail-item">
+                <i class="fas fa-university"></i>
+                <div class="detail-item-content">
+                    <div class="detail-label">College</div>
+                    <div class="detail-value">${app.college}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="detail-section">
+            <h4>Event Details</h4>
+            <div class="detail-item">
+                <i class="fas fa-users"></i>
+                <div class="detail-item-content">
+                    <div class="detail-label">Size</div>
+                    <div class="detail-value">${app.memberCount} Members</div>
+                </div>
+            </div>
+            <div class="detail-item">
+                <i class="fas fa-tag"></i>
+                <div class="detail-item-content">
+                    <div class="detail-label">Participation Type</div>
+                    <div class="detail-value">${app.participationType || 'N/A'}</div>
+                </div>
+            </div>
+            <div class="detail-item">
+                <i class="fas fa-graduation-cap"></i>
+                <div class="detail-item-content">
+                    <div class="detail-label">Training</div>
+                    <div class="detail-value">${app.trainingOption || 'N/A'}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="detail-section">
+            <h4>Payment Info</h4>
+            <div class="detail-item">
+                <i class="fas fa-credit-card"></i>
+                <div class="detail-item-content">
+                    <div class="detail-label">UTR Number</div>
+                    <div class="detail-value">${app.nationality === 'Foreign' ? 'N/A (Foreign)' : (app.utrNumber || 'Not provided')}</div>
+                </div>
+            </div>
+            <div class="detail-item">
+                <i class="fas fa-calendar"></i>
+                <div class="detail-item-content">
+                    <div class="detail-label">Registered Date</div>
+                    <div class="detail-value">${registrationDate}</div>
+                </div>
+            </div>
+            <div class="detail-item">
+                <i class="fas fa-image"></i>
+                <div class="detail-item-content">
+                    <div class="detail-label">Screenshot</div>
+                    <div class="detail-value">${paymentLink}</div>
+                </div>
+            </div>
+        </div>
+        
+        ${teamMembersHtml}
+    `;
+
+    document.getElementById('panelOverlay').classList.add('active');
+    document.getElementById('detailsPanel').classList.add('active');
+}
+
+function closeDetailsPanel() {
+    document.getElementById('panelOverlay').classList.remove('active');
+    document.getElementById('detailsPanel').classList.remove('active');
+}
+
 // Apply filters
 function applyFilters() {
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    const statusFilter = document.getElementById('statusFilter').value;
-    const utrFilter = document.getElementById('utrFilter').value;
+    const searchInput = document.getElementById('searchInput');
+    const statusFilterEl = document.getElementById('statusFilter');
+    const utrFilterEl = document.getElementById('utrFilter');
+    
+    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+    const statusFilter = statusFilterEl ? statusFilterEl.value : 'all';
+    const utrFilter = utrFilterEl ? utrFilterEl.value : 'all';
     
     filteredApplications = allApplications.filter(app => {
         // Search filter
@@ -347,17 +484,22 @@ function applyFilters() {
         return matchesSearch && matchesStatus && matchesUTR;
     });
     
-    renderApplications();
+    if (document.getElementById('applicationsContainer')) {
+        renderApplications();
+    }
 }
 
 // Clear filters
 function clearFilters() {
-    document.getElementById('searchInput').value = '';
-    document.getElementById('statusFilter').value = 'all';
-    document.getElementById('utrFilter').value = 'all';
+    if (document.getElementById('searchInput')) document.getElementById('searchInput').value = '';
+    if (document.getElementById('statusFilter')) document.getElementById('statusFilter').value = 'all';
+    if (document.getElementById('utrFilter')) document.getElementById('utrFilter').value = 'all';
     
     filteredApplications = [...allApplications];
-    renderApplications();
+    
+    if (document.getElementById('applicationsContainer')) {
+        renderApplications();
+    }
 }
 
 // Update application status
@@ -385,8 +527,8 @@ async function updateStatus(id, status) {
         
         // Re-apply filters and update UI
         applyFilters();
-        updateStatistics();
-        renderCharts();
+        if (document.getElementById('totalApps')) updateStatistics();
+        if (document.getElementById('trendChart')) renderCharts();
         
         showToast(`Application ${status} successfully!`, 'success');
     } catch (error) {
@@ -401,7 +543,9 @@ async function deleteApplication(id, teamName) {
         const response = await fetch(`${API_BASE_URL}/applications/${id}`, { method: 'DELETE' });
         if (!response.ok) throw new Error('Delete failed');
         allApplications = allApplications.filter(app => app._id !== id);
-        await validateAllUTRs(); applyFilters(); updateStatistics(); renderCharts();
+        await validateAllUTRs(); applyFilters(); 
+        if (document.getElementById('totalApps')) updateStatistics(); 
+        if (document.getElementById('trendChart')) renderCharts();
         showToast('Application deleted', 'success');
     } catch (error) { showToast(error.message, 'error'); }
 }
@@ -500,8 +644,8 @@ async function saveEdit() {
         // Revalidate UTRs and update UI
         await validateAllUTRs();
         applyFilters();
-        updateStatistics();
-        renderCharts();
+        if (document.getElementById('totalApps')) updateStatistics();
+        if (document.getElementById('trendChart')) renderCharts();
         
         closeEditModal();
         showToast('Application updated successfully!', 'success');
@@ -560,6 +704,7 @@ async function refreshData() {
 // Show toast notification
 function showToast(message, type = 'info') {
     const toastContainer = document.getElementById('toastContainer');
+    if (!toastContainer) return;
     const toast = document.createElement('div');
     
     const icons = {
