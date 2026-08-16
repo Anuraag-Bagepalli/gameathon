@@ -12,6 +12,7 @@ const registrationSchema = new mongoose.Schema({
   teamMembers: [String],
   utrNumber: String,
   paymentScreenshot: String,
+  nationality: { type: String, default: 'Indian' },
   status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
   registrationDate: { type: Date, default: Date.now }
 });

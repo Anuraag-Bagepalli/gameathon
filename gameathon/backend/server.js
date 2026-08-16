@@ -70,9 +70,9 @@ const upload = multer({
 // Routes
 app.post('/api/register', upload.single('paymentScreenshot'), async (req, res) => {
   try {
-    console.log('Received registration data:', req.body); // <--- Add this
-    console.log('Received file:', req.file); // <--- Add this
-    // Parse teamMembers if needed
+    console.log('Received registration data:', req.body);
+    console.log('Received file:', req.file);
+    
     let parsedTeamMembers = [];
     if (req.body.teamMembers) {
       try {
@@ -85,8 +85,10 @@ app.post('/api/register', upload.single('paymentScreenshot'), async (req, res) =
     const required = ['teamName', 'teamLeader', 'email', 'phone', 'college'];
     const missing = required.filter(field => !String(req.body[field] || '').trim());
     if (missing.length) return res.status(400).json({ message: 'Missing required registration details', error: `Required: ${missing.join(', ')}` });
+    
     const normalizedUtr = String(req.body.utrNumber || '').trim().toUpperCase();
     if (normalizedUtr && await Registration.exists({ utrNumber: normalizedUtr })) return res.status(409).json({ message: 'Payment reference already used', error: 'This UTR is already registered' });
+    
     const registrationData = {
       teamName: req.body.teamName,
       teamLeader: req.body.teamLeader,
@@ -99,12 +101,12 @@ app.post('/api/register', upload.single('paymentScreenshot'), async (req, res) =
       teamMembers: parsedTeamMembers,
       utrNumber: normalizedUtr,
       paymentScreenshot: req.file ? req.file.path : '',
+      nationality: req.body.nationality || 'Indian',
     };
 
-    // Save to MongoDB
     const registration = new Registration(registrationData);
     const saved = await registration.save();
-    console.log('Saved registration:', saved); // <--- Add this
+    console.log('Saved registration:', saved);
 
     res.status(201).json({ message: 'Registration successful', registration });
   } catch (error) {
@@ -135,5 +137,3 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
-

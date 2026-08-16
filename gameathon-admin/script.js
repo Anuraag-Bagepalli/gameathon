@@ -91,7 +91,12 @@ async function validateAllUTRs() {
     
     // Set validation status for each application
     allApplications.forEach(app => {
-        if (app.utrNumber) {
+        if (app.nationality === 'Foreign') {
+            utrValidationCache[app._id] = {
+                isUnique: true,
+                status: 'not-required'
+            };
+        } else if (app.utrNumber) {
             const utr = app.utrNumber.toUpperCase();
             utrValidationCache[app._id] = {
                 isUnique: utrCounts[utr] === 1,
@@ -161,6 +166,8 @@ function renderApplicationCard(app) {
     if (validation) {
         if (validation.status === 'missing') {
             utrBadge = `<span class="badge missing"><i class="fas fa-exclamation-circle"></i> Missing UTR</span>`;
+        } else if (validation.status === 'not-required') {
+            utrBadge = `<span class="badge" style="background: var(--surface); color: var(--text);"><i class="fas fa-globe"></i> Foreign (No UTR)</span>`;
         } else if (validation.isUnique) {
             utrBadge = `<span class="badge unique"><i class="fas fa-check-circle"></i> Unique UTR</span>`;
         } else {
@@ -282,7 +289,7 @@ function renderApplicationCard(app) {
                         <h4>Payment Details</h4>
                         <div class="info-item">
                             <i class="fas fa-credit-card"></i>
-                            <span>UTR: ${app.utrNumber || 'Not provided'}</span>
+                            <span>UTR: ${app.nationality === 'Foreign' ? 'No payment mode' : (app.utrNumber || 'Not provided')}</span>
                         </div>
                         <div class="info-item">
                             <i class="fas fa-calendar"></i>

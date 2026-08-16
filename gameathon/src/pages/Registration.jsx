@@ -160,11 +160,11 @@ export default function Registration() {
               </div>
             </div>
           ) : (
-             <div className="interest-note">
+             <div className="interest-note" style={{ padding: '20px', border: '1px solid var(--line)', borderRadius: '8px', marginBottom: '20px', background: 'var(--surface)' }}>
                <Users />
                <div>
                  <strong>Foreign National Registration</strong>
-                 <p>As a foreign national, please submit your registration. Our admin team will get in touch with you shortly to coordinate payment.</p>
+                 <p>No payment mode required. Submit your registration and we'll process your application.</p>
                </div>
              </div>
           )}
