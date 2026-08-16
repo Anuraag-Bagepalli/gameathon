@@ -31,35 +31,17 @@
             </div>
             
             <nav class="sidebar-nav">
-                <a href="#" class="nav-item active">
+                <a href="#" class="nav-item active" onclick="document.querySelector('.dashboard-content').scrollIntoView({behavior: 'smooth'})">
                     <i class="fas fa-border-all"></i> Dashboard
                 </a>
-                <a href="#" class="nav-item">
+                <a href="#" class="nav-item" onclick="document.querySelector('.table-section').scrollIntoView({behavior: 'smooth'})">
                     <i class="fas fa-clipboard-list"></i> Applications
-                </a>
-                <a href="#" class="nav-item">
-                    <i class="fas fa-calendar-alt"></i> Events
-                </a>
-                <a href="#" class="nav-item">
-                    <i class="fas fa-users"></i> Attendees
-                </a>
-                <a href="#" class="nav-item">
-                    <i class="fas fa-money-bill-wave"></i> Payments
-                </a>
-                <a href="#" class="nav-item">
-                    <i class="fas fa-chart-line"></i> Reports
-                </a>
-                <a href="#" class="nav-item">
-                    <i class="fas fa-cog"></i> Settings
                 </a>
             </nav>
 
             <div class="sidebar-footer">
-                <a href="#" class="nav-item profile-nav">
-                    <i class="far fa-user-circle"></i> Profile
-                </a>
-                <a href="#" class="nav-item">
-                    <i class="fas fa-sign-out-alt"></i> Logout
+                <a href="https://github.com/Anuraag-Bagepalli/gameathon" target="_blank" class="nav-item">
+                    <i class="fab fa-github"></i> Source Code
                 </a>
             </div>
         </aside>
@@ -78,11 +60,7 @@
                     </div>
                 </div>
                 <div class="navbar-right">
-                    <button class="icon-btn" aria-label="Notifications"><i class="far fa-bell"></i></button>
                     <button class="icon-btn theme-admin-btn" id="themeAdminBtn" onclick="toggleAdminTheme()" aria-label="Toggle Theme"><i class="fas fa-moon"></i></button>
-                    <div class="user-avatar">
-                        <img src="https://ui-avatars.com/api/?name=Admin&background=3b82f6&color=fff" alt="User">
-                    </div>
                 </div>
             </header>
 
