@@ -11,10 +11,9 @@ const app = express();
 
 // Enhanced CORS configuration
 app.use(cors({
-  origin: process.env.FRONTEND_ORIGIN || 'http://localhost:3005',
+  origin: true, // Allow all origins dynamically
   methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Middleware
@@ -26,7 +25,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/uploads', express.static('uploads', {
   setHeaders: (res) => {
     res.setHeader('Content-Security-Policy', "default-src 'self'; img-src 'self' data: blob:");
-    res.setHeader('Access-Control-Allow-Origin', process.env.FRONTEND_ORIGIN || 'http://localhost:3005');
+    res.setHeader('Access-Control-Allow-Origin', '*');
   }
 }));
 
