@@ -83,6 +83,7 @@ export default function Registration() {
         <form className="registration-form card" onSubmit={submit}>
           {state.text && <div className={`form-message ${state.type}`}>{state.text}</div>}
           
+          {/*
           <div className="form-group">
             <label>Nationality</label>
             <div style={{ display: 'flex', gap: '20px', padding: '10px 0' }}>
@@ -96,6 +97,7 @@ export default function Registration() {
               </label>
             </div>
           </div>
+          */}
 
           <div className="form-row">
             <Field label="Team name" name="teamName" value={form.teamName} onChange={change} />
@@ -145,7 +147,7 @@ export default function Registration() {
             ))}
           </div>
 
-          {form.nationality === 'Indian' ? (
+          {/* form.nationality === 'Indian' ? ( */}
             <div style={{ padding: '20px', border: '1px solid var(--line)', borderRadius: '8px', marginBottom: '20px', background: 'rgba(168,85,247,.04)' }}>
               <h3 style={{ marginBottom: '15px', fontSize: '1.1rem', color: 'var(--accent)', textTransform: 'uppercase' }}>Payment Details - Amount: ₹{getPrice()}</h3>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', alignItems: 'flex-start' }}>
@@ -159,7 +161,7 @@ export default function Registration() {
                 </div>
               </div>
             </div>
-          ) : (
+          {/* ) : (
              <div className="interest-note" style={{ padding: '20px', border: '1px solid var(--line)', borderRadius: '8px', marginBottom: '20px', background: 'var(--surface)' }}>
                <Users />
                <div>
@@ -167,7 +169,7 @@ export default function Registration() {
                  <p>No payment mode required. Submit your registration and we'll process your application.</p>
                </div>
              </div>
-          )}
+          )} */}
           
           <label className="consent">
             <input type="checkbox" required /> I confirm that these contact and team details are accurate.
