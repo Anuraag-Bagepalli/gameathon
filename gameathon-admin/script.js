@@ -369,10 +369,12 @@ async function updateStatus(id, status) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
+        const updatedApp = await response.json();
+        
         // Update local data
         const appIndex = allApplications.findIndex(app => app._id === id);
         if (appIndex !== -1) {
-            allApplications[appIndex].status = status;
+            allApplications[appIndex] = { ...allApplications[appIndex], ...updatedApp };
         }
         
         // Re-apply filters and update UI

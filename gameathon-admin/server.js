@@ -20,7 +20,7 @@ if (!MONGODB_URI) throw new Error('MONGODB_URI is required');
 const EMAIL_CONFIG = {
   service: 'gmail', // or your preferred email service
   auth: {
-    user: process.env.EMAIL_USER || '',
+    user: process.env.EMAIL_USER || '1jt23is006@jyothyit.ac.in',
     pass: process.env.EMAIL_APP_PASSWORD || ''
   }
 };
@@ -284,23 +284,72 @@ function getAcceptanceEmailTemplate(application) {
   `;
 }
 
-// Function to send acceptance email
-async function sendAcceptanceEmail(application) {
+function getRejectionEmailTemplate(application) {
+  return `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Application Status - ${EVENT_CONFIG.eventName}</title>
+        <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 20px; background-color: #f4f4f4; }
+            .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+            .header { background: linear-gradient(135deg, #f87171 0%, #ef4444 100%); color: white; padding: 30px 20px; text-align: center; }
+            .header h1 { margin: 0; font-size: 28px; }
+            .content { padding: 30px; }
+            .details { background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0; }
+            .details h3 { margin-top: 0; color: #1e293b; }
+            .footer { background: #f1f5f9; padding: 20px; text-align: center; color: #64748b; font-size: 14px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>Application Update</h1>
+            </div>
+            
+            <div class="content">
+                <h2>Dear ${application.teamLeader},</h2>
+                <p>Thank you for your interest in <strong>${EVENT_CONFIG.eventName}</strong>.</p>
+                <p>We have carefully reviewed your application for team <strong>${application.teamName}</strong>. Unfortunately, we are unable to accept your registration at this time. This is typically due to duplicate UTR entries, an invalid payment screenshot, or capacity constraints.</p>
+                
+                <p>If you believe this is an error regarding your payment verification, please contact the organizing team immediately.</p>
+                
+                <p>We appreciate your interest and hope to see you at future events.</p>
+                <p>Best regards,<br><strong>The ${EVENT_CONFIG.organizerName}</strong></p>
+            </div>
+            
+            <div class="footer">
+                <p>This is an automated message. Please do not reply directly to this email.</p>
+                <p>&copy; ${new Date().getFullYear()} ${EVENT_CONFIG.eventName}. All rights reserved.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+  `;
+}
+
+// Function to send emails
+async function sendStatusEmail(application, status) {
   try {
+    const isApproved = status === 'approved';
     const mailOptions = {
       from: {
         name: EVENT_CONFIG.organizerName,
         address: EMAIL_CONFIG.auth.user
       },
       to: application.email,
-      subject: `🎉 Congratulations! Your application for ${EVENT_CONFIG.eventName} has been accepted!`,
-      html: getAcceptanceEmailTemplate(application),
+      subject: isApproved 
+        ? `🎉 Congratulations! Your application for ${EVENT_CONFIG.eventName} has been accepted!` 
+        : `Update on your application for ${EVENT_CONFIG.eventName}`,
+      html: isApproved ? getAcceptanceEmailTemplate(application) : getRejectionEmailTemplate(application),
       attachments: []
     };
 
     const info = await transporter.sendMail(mailOptions);
     
-    console.log(`✅ Acceptance email sent to ${application.email}`);
+    console.log(`✅ ${status} email sent to ${application.email}`);
     console.log('Message ID:', info.messageId);
     
     return {
@@ -309,7 +358,7 @@ async function sendAcceptanceEmail(application) {
       recipient: application.email
     };
   } catch (error) {
-    console.error('❌ Error sending acceptance email:', error);
+    console.error(`❌ Error sending ${status} email:`, error);
     return {
       success: false,
       error: error.message
@@ -497,11 +546,11 @@ app.patch('/api/applications/:id/status', async (req, res) => {
 
     console.log(`✅ Status Updated: ${application.teamName} - ${status}`);
     
-    // Send email if application is approved
-    if (status === 'approved' && !application.emailSent) {
-      console.log(`📧 Sending acceptance email to ${application.email}...`);
+    // Send email if application is approved or rejected
+    if ((status === 'approved' || status === 'rejected') && !application.emailSent) {
+      console.log(`📧 Sending ${status} email to ${application.email}...`);
       
-      const emailResult = await sendAcceptanceEmail(application);
+      const emailResult = await sendStatusEmail(application, status);
       
       if (emailResult.success) {
         // Update application to mark email as sent
