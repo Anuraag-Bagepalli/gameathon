@@ -1,1 +1,1 @@
-export const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5001').replace(/\/$/, '');
+export const API_URL = (import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:5001' : 'https://gameathon-api.onrender.com')).replace(/\/$/, '');
