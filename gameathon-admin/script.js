@@ -502,6 +502,28 @@ function clearFilters() {
     }
 }
 
+// Silent fetch to update data in the background without showing loaders
+async function fetchApplicationsSilent() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/applications`);
+        if (!response.ok) return;
+        
+        allApplications = await response.json();
+        await validateAllUTRs();
+        
+        // Re-apply filters which will also render the table
+        applyFilters();
+        
+        // Update dashboard if we are on it
+        if (document.getElementById('totalApps')) {
+            updateStatistics();
+            renderCharts();
+        }
+    } catch (error) {
+        console.error('Silent fetch failed:', error);
+    }
+}
+
 // Update application status
 async function updateStatus(id, status) {
     try {
@@ -517,18 +539,8 @@ async function updateStatus(id, status) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
-        const updatedApp = await response.json();
-        
-        // Update local data
-        const appIndex = allApplications.findIndex(app => app._id === id);
-        if (appIndex !== -1) {
-            allApplications[appIndex] = { ...allApplications[appIndex], ...updatedApp };
-        }
-        
-        // Re-apply filters and update UI
-        applyFilters();
-        if (document.getElementById('totalApps')) updateStatistics();
-        if (document.getElementById('trendChart')) renderCharts();
+        // Ensure UI is perfectly synced by re-fetching
+        await fetchApplicationsSilent();
         
         showToast(`Application ${status} successfully!`, 'success');
     } catch (error) {
@@ -542,10 +554,8 @@ async function deleteApplication(id, teamName) {
     try {
         const response = await fetch(`${API_BASE_URL}/applications/${id}`, { method: 'DELETE' });
         if (!response.ok) throw new Error('Delete failed');
-        allApplications = allApplications.filter(app => app._id !== id);
-        await validateAllUTRs(); applyFilters(); 
-        if (document.getElementById('totalApps')) updateStatistics(); 
-        if (document.getElementById('trendChart')) renderCharts();
+        
+        await fetchApplicationsSilent();
         showToast('Application deleted', 'success');
     } catch (error) { showToast(error.message, 'error'); }
 }
@@ -633,19 +643,8 @@ async function saveEdit() {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
-        const updatedApp = await response.json();
-        
-        // Update local data
-        const appIndex = allApplications.findIndex(app => app._id === id);
-        if (appIndex !== -1) {
-            allApplications[appIndex] = updatedApp;
-        }
-        
-        // Revalidate UTRs and update UI
-        await validateAllUTRs();
-        applyFilters();
-        if (document.getElementById('totalApps')) updateStatistics();
-        if (document.getElementById('trendChart')) renderCharts();
+        // Ensure UI is perfectly synced by re-fetching
+        await fetchApplicationsSilent();
         
         closeEditModal();
         showToast('Application updated successfully!', 'success');
