@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gameathon Control // Registrations</title>
+    <title>Gameathon Admin Portal</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js for Dashboard Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <!-- Loading Spinner -->
@@ -15,120 +17,192 @@
         <p>Loading dashboard...</p>
     </div>
 
-    <!-- Main Container -->
-    <div class="container" id="mainContainer" style="display: none;">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-content">
-                <h1><i class="fas fa-satellite-dish"></i> Gameathon 8.0 Control</h1>
-                <p>2026 creator registrations and team review</p>
-            </div>
-            <div class="header-actions">
-                <button class="theme-admin-btn" id="themeAdminBtn" onclick="toggleAdminTheme()" aria-label="Toggle color theme"><i class="fas fa-sun"></i></button>
-                <button class="refresh-btn" onclick="refreshData()"><i class="fas fa-sync-alt"></i> Refresh</button>
-            </div>
-        </header>
-
-        <!-- Statistics Cards -->
-        <div class="stats-grid" id="statsGrid">
-            <div class="stat-card">
-                <div class="stat-icon total">
-                    <i class="fas fa-users"></i>
-                </div>
-                <div class="stat-info">
-                    <span class="stat-number" id="totalApps">0</span>
-                    <span class="stat-label">Total Applications</span>
+    <!-- Application Layout -->
+    <div class="app-layout" id="mainContainer" style="display: none;">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon">GA</div>
+                <div class="logo-text">
+                    <h2>Gameathon</h2>
+                    <p>Admin Portal</p>
                 </div>
             </div>
+            
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active">
+                    <i class="fas fa-border-all"></i> Dashboard
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-clipboard-list"></i> Applications
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-calendar-alt"></i> Events
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-users"></i> Attendees
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-money-bill-wave"></i> Payments
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-chart-line"></i> Reports
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-cog"></i> Settings
+                </a>
+            </nav>
 
-            <div class="stat-card">
-                <div class="stat-icon pending">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <div class="stat-info">
-                    <span class="stat-number" id="pendingApps">0</span>
-                    <span class="stat-label">Pending</span>
-                </div>
+            <div class="sidebar-footer">
+                <a href="#" class="nav-item profile-nav">
+                    <i class="far fa-user-circle"></i> Profile
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
             </div>
+        </aside>
 
-            <div class="stat-card">
-                <div class="stat-icon approved">
-                    <i class="fas fa-check-circle"></i>
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Navbar -->
+            <header class="top-navbar">
+                <div class="navbar-left">
+                    <h2 class="page-title">Admin Portal</h2>
                 </div>
-                <div class="stat-info">
-                    <span class="stat-number" id="approvedApps">0</span>
-                    <span class="stat-label">Approved</span>
+                <div class="navbar-center">
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Search applications..." onkeyup="applyFilters()">
+                    </div>
                 </div>
+                <div class="navbar-right">
+                    <button class="icon-btn" aria-label="Notifications"><i class="far fa-bell"></i></button>
+                    <button class="icon-btn theme-admin-btn" id="themeAdminBtn" onclick="toggleAdminTheme()" aria-label="Toggle Theme"><i class="fas fa-moon"></i></button>
+                    <div class="user-avatar">
+                        <img src="https://ui-avatars.com/api/?name=Admin&background=3b82f6&color=fff" alt="User">
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+                
+                <!-- Page Header & Actions -->
+                <div class="page-header">
+                    <div class="page-header-text">
+                        <h1>Dashboard Overview</h1>
+                        <p>Welcome back. Here is your current event snapshot.</p>
+                    </div>
+                    <div class="page-header-actions">
+                        <button class="btn btn-primary" onclick="refreshData()"><i class="fas fa-sync-alt"></i> Refresh Data</button>
+                    </div>
+                </div>
+
+                <!-- Statistics Row -->
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-title">TOTAL APPLICATIONS</div>
+                        <div class="stat-value">
+                            <span id="totalApps">0</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">APPROVED</div>
+                        <div class="stat-value">
+                            <span id="approvedApps">0</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">PENDING</div>
+                        <div class="stat-value">
+                            <span id="pendingApps">0</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">REJECTED</div>
+                        <div class="stat-value">
+                            <span id="rejectedApps" class="text-danger">0</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">UNIQUE UTR</div>
+                        <div class="stat-value">
+                            <span id="uniqueUTR">0</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">DUPLICATE UTR</div>
+                        <div class="stat-value">
+                            <span id="duplicateUTR">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="charts-row">
+                    <div class="chart-container trend-chart-wrapper">
+                        <div class="chart-header">
+                            <h3>Registration Trend</h3>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="trendChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-container status-chart-wrapper">
+                        <div class="chart-header">
+                            <h3>Registration Status</h3>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Registrations Table -->
+                <div class="table-section">
+                    <div class="table-header">
+                        <h3>Recent Registrations</h3>
+                        <div class="table-filters">
+                            <select id="statusFilter" onchange="applyFilters()">
+                                <option value="all">All Status</option>
+                                <option value="pending">Pending</option>
+                                <option value="approved">Approved</option>
+                                <option value="rejected">Rejected</option>
+                            </select>
+                            <select id="utrFilter" onchange="applyFilters()">
+                                <option value="all">All UTR</option>
+                                <option value="unique">Unique</option>
+                                <option value="duplicate">Duplicate</option>
+                                <option value="missing">Missing</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>TEAM / LEADER</th>
+                                    <th>COLLEGE</th>
+                                    <th>DATE</th>
+                                    <th>STATUS</th>
+                                    <th class="text-right">ACTION</th>
+                                </tr>
+                            </thead>
+                            <tbody id="applicationsContainer">
+                                <!-- Table rows rendered here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
-
-            <div class="stat-card">
-                <div class="stat-icon rejected">
-                    <i class="fas fa-times-circle"></i>
-                </div>
-                <div class="stat-info">
-                    <span class="stat-number" id="rejectedApps">0</span>
-                    <span class="stat-label">Rejected</span>
-                </div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-icon unique">
-                    <i class="fas fa-check-double"></i>
-                </div>
-                <div class="stat-info">
-                    <span class="stat-number" id="uniqueUTR">0</span>
-                    <span class="stat-label">Unique UTR</span>
-                </div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-icon duplicate">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <div class="stat-info">
-                    <span class="stat-number" id="duplicateUTR">0</span>
-                    <span class="stat-label">Duplicate UTR</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Filters -->
-        <div class="filters-section">
-            <div class="filter-group">
-                <div class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="searchInput" placeholder="Search applications..." onkeyup="applyFilters()">
-                </div>
-
-                <select id="statusFilter" onchange="applyFilters()">
-                    <option value="all">All Status</option>
-                    <option value="pending">Pending</option>
-                    <option value="approved">Approved</option>
-                    <option value="rejected">Rejected</option>
-                </select>
-
-                <select id="utrFilter" onchange="applyFilters()">
-                    <option value="all">All UTR Status</option>
-                    <option value="unique">Unique UTR</option>
-                    <option value="duplicate">Duplicate UTR</option>
-                    <option value="missing">Missing UTR</option>
-                </select>
-
-                <button class="clear-filters-btn" onclick="clearFilters()">
-                    <i class="fas fa-times"></i> Clear Filters
-                </button>
-            </div>
-        </div>
-
-        <!-- Applications List -->
-        <div class="applications-section">
-            <div id="applicationsContainer">
-                <!-- Applications will be loaded here -->
-            </div>
-        </div>
+        </main>
     </div>
 
-    <!-- Edit Modal -->
+    <!-- Edit Modal (Preserved functionality) -->
     <div id="editModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">

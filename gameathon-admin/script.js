@@ -3,8 +3,12 @@ let allApplications = [];
 let filteredApplications = [];
 let utrValidationCache = {};
 
+// Chart instances
+let trendChartInstance = null;
+let statusChartInstance = null;
+
 const savedAdminTheme = localStorage.getItem('gameathon-admin-theme');
-const initialAdminTheme = savedAdminTheme || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+const initialAdminTheme = savedAdminTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 document.documentElement.dataset.theme = initialAdminTheme;
 
 function toggleAdminTheme() {
@@ -12,6 +16,9 @@ function toggleAdminTheme() {
     document.documentElement.dataset.theme = next;
     localStorage.setItem('gameathon-admin-theme', next);
     updateAdminThemeIcon();
+    
+    // Re-render charts to match theme
+    if (trendChartInstance) renderCharts();
 }
 
 function updateAdminThemeIcon() {
@@ -51,7 +58,7 @@ function showLoading() {
 // Hide loading spinner
 function hideLoading() {
     document.getElementById('loading').style.display = 'none';
-    document.getElementById('mainContainer').style.display = 'block';
+    document.getElementById('mainContainer').style.display = 'flex'; // Changed to flex for new layout
 }
 
 // Fetch applications from API
@@ -71,6 +78,7 @@ async function fetchApplications() {
         // Update UI
         updateStatistics();
         renderApplications();
+        renderCharts();
         
         showToast('Dashboard loaded successfully!', 'success');
     } catch (error) {
@@ -133,26 +141,106 @@ function updateStatistics() {
     document.getElementById('duplicateUTR').textContent = stats.duplicate;
 }
 
-// Render applications
+// Render Charts
+function renderCharts() {
+    const isDark = document.documentElement.dataset.theme === 'dark';
+    const textColor = isDark ? '#94a3b8' : '#64748b';
+    const gridColor = isDark ? '#334155' : '#e2e8f0';
+
+    // Status Donut Chart
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    const approved = allApplications.filter(app => app.status === 'approved').length;
+    const pending = allApplications.filter(app => (app.status || 'pending') === 'pending').length;
+    const rejected = allApplications.filter(app => app.status === 'rejected').length;
+
+    if (statusChartInstance) {
+        statusChartInstance.destroy();
+    }
+
+    statusChartInstance = new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Approved', 'Pending', 'Rejected'],
+            datasets: [{
+                data: [approved, pending, rejected],
+                backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                borderWidth: 0,
+                cutout: '75%'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { color: textColor, padding: 20 } }
+            }
+        }
+    });
+
+    // Trend Bar Chart
+    const trendCtx = document.getElementById('trendChart').getContext('2d');
+    
+    // Group by date
+    const dateCounts = {};
+    allApplications.forEach(app => {
+        const date = new Date(app.registrationDate || new Date()).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        dateCounts[date] = (dateCounts[date] || 0) + 1;
+    });
+
+    // Sort dates
+    const sortedDates = Object.keys(dateCounts).sort((a, b) => new Date(a) - new Date(b)).slice(-7); // Last 7 active days
+    const trendData = sortedDates.map(date => dateCounts[date]);
+
+    if (trendChartInstance) {
+        trendChartInstance.destroy();
+    }
+
+    trendChartInstance = new Chart(trendCtx, {
+        type: 'bar',
+        data: {
+            labels: sortedDates.length ? sortedDates : ['No Data'],
+            datasets: [{
+                label: 'Registrations',
+                data: trendData.length ? trendData : [0],
+                backgroundColor: '#3b82f6',
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor, stepSize: 1 } },
+                x: { grid: { display: false }, ticks: { color: textColor } }
+            }
+        }
+    });
+}
+
+// Render applications (Table)
 function renderApplications() {
     const container = document.getElementById('applicationsContainer');
     
     if (filteredApplications.length === 0) {
         container.innerHTML = `
-            <div class="no-data">
-                <i class="fas fa-inbox"></i>
-                <h3>No Applications Found</h3>
-                <p>No applications match your current filter criteria.</p>
-            </div>
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                    <i class="fas fa-inbox" style="font-size: 24px; margin-bottom: 10px;"></i>
+                    <p>No applications found.</p>
+                </td>
+            </tr>
         `;
         return;
     }
     
-    container.innerHTML = filteredApplications.map(app => renderApplicationCard(app)).join('');
+    container.innerHTML = filteredApplications.map(app => renderApplicationRow(app)).join('');
 }
 
-// Render single application card
-function renderApplicationCard(app) {
+// Render single application row
+function renderApplicationRow(app) {
     const validation = utrValidationCache[app._id];
     const statusClass = app.status || 'pending';
     
@@ -163,152 +251,70 @@ function renderApplicationCard(app) {
         day: 'numeric'
     });
     
-    // UTR badge
+    // Status badges
+    let statusBadgeText = statusClass.charAt(0).toUpperCase() + statusClass.slice(1);
+    const statusBadge = `<span class="badge ${statusClass}">${statusBadgeText}</span>`;
+    
     let utrBadge = '';
     if (validation) {
         if (validation.status === 'missing') {
-            utrBadge = `<span class="badge missing"><i class="fas fa-exclamation-circle"></i> Missing UTR</span>`;
+            utrBadge = `<span class="badge missing" title="Missing UTR">No UTR</span>`;
         } else if (validation.status === 'not-required') {
-            utrBadge = `<span class="badge" style="background: var(--surface); color: var(--text);"><i class="fas fa-globe"></i> Foreign (No UTR)</span>`;
+            utrBadge = `<span class="badge unique" title="Foreign">Foreign</span>`;
         } else if (validation.isUnique) {
-            utrBadge = `<span class="badge unique"><i class="fas fa-check-circle"></i> Unique UTR</span>`;
+            utrBadge = `<span class="badge unique" title="Unique UTR">Unique</span>`;
         } else {
-            utrBadge = `<span class="badge duplicate"><i class="fas fa-exclamation-triangle"></i> Duplicate UTR (${validation.duplicateCount})</span>`;
+            utrBadge = `<span class="badge duplicate" title="Duplicate UTR">Dup (${validation.duplicateCount})</span>`;
         }
-    }
-    
-    // Status badge
-    const statusIcons = {
-        pending: 'fas fa-clock',
-        approved: 'fas fa-check-circle',
-        rejected: 'fas fa-times-circle'
-    };
-    
-    const statusBadge = `<span class="badge ${statusClass}"><i class="${statusIcons[statusClass]}"></i> ${statusClass.charAt(0).toUpperCase() + statusClass.slice(1)}</span>`;
-    
-    // Team members
-    let teamMembersHtml = '';
-    if (app.teamMembers && app.teamMembers.length > 0) {
-        teamMembersHtml = `
-            <div class="team-members">
-                <h4>Team Members</h4>
-                <div class="members-list">
-                    ${app.teamMembers.map(member => `<span class="member-tag">${member}</span>`).join('')}
-                </div>
-            </div>
-        `;
-    }
-    
-    // Duplicate warning
-    let duplicateWarning = '';
-    if (validation && !validation.isUnique && validation.status !== 'missing') {
-        duplicateWarning = `
-            <div class="duplicate-warning">
-                <i class="fas fa-exclamation-triangle"></i>
-                <span>UTR Duplicate Warning: This UTR number appears ${validation.duplicateCount} times in the database</span>
-            </div>
-        `;
     }
     
     // Action buttons
     let actionButtons = `
-        <button class="btn btn-secondary" onclick="editApplication('${app._id}')">
-            <i class="fas fa-edit"></i> Edit
+        <button class="action-btn" title="Edit Application" onclick="editApplication('${app._id}')">
+            <i class="fas fa-edit"></i>
         </button>
     `;
     
     if (statusClass === 'pending') {
         const acceptDisabled = validation && !validation.isUnique ? 'disabled' : '';
         actionButtons += `
-            <button class="btn btn-success" onclick="updateStatus('${app._id}', 'approved')" ${acceptDisabled}>
-                <i class="fas fa-check"></i> Accept
+            <button class="action-btn accept" title="Approve" onclick="updateStatus('${app._id}', 'approved')" ${acceptDisabled}>
+                <i class="fas fa-check"></i>
             </button>
-            <button class="btn btn-danger" onclick="updateStatus('${app._id}', 'rejected')">
-                <i class="fas fa-times"></i> Reject
+            <button class="action-btn reject" title="Reject" onclick="updateStatus('${app._id}', 'rejected')">
+                <i class="fas fa-times"></i>
             </button>
         `;
     }
-    if (statusClass === 'approved') {
-        actionButtons += `<button class="btn btn-success" onclick="resendEmail('${app._id}')"><i class="fas fa-envelope"></i> Resend email</button>`;
-    }
-    actionButtons += `<button class="btn btn-danger" onclick="deleteApplication('${app._id}', '${String(app.teamName || '').replace(/'/g, "\\'")}')"><i class="fas fa-trash"></i> Delete</button>`;
     
-    // Payment screenshot link
-    let paymentLink = '';
-    if (app.paymentScreenshot) {
-        const screenshotUrl = /^https?:/i.test(app.paymentScreenshot) ? app.paymentScreenshot : `/${app.paymentScreenshot.replace(/^\/?(?:\.\/)?/, '')}`;
-        paymentLink = `<a href="${screenshotUrl}" target="_blank" rel="noopener" class="btn btn-link">View Payment Screenshot</a>`;
-    }
+    actionButtons += `
+        <button class="action-btn reject" title="Delete" onclick="deleteApplication('${app._id}', '${String(app.teamName || '').replace(/'/g, "\\'")}')">
+            <i class="fas fa-trash"></i>
+        </button>
+    `;
     
     return `
-        <div class="application-card ${statusClass}">
-            <div class="card-header">
-                <div class="card-title">
-                    <h3>${app.teamName}</h3>
-                    <p>Leader: ${app.teamLeader}</p>
+        <tr>
+            <td>
+                <div class="team-info">
+                    <span class="team-name">${app.teamName}</span>
+                    <span class="team-leader">${app.teamLeader} | ${app.email}</span>
                 </div>
-                <div class="badges">
+            </td>
+            <td>${app.college}</td>
+            <td>${registrationDate}</td>
+            <td>
+                <div style="display: flex; gap: 6px;">
                     ${statusBadge}
                     ${utrBadge}
                 </div>
-            </div>
-            
-            <div class="card-content">
-                <div class="info-grid">
-                    <div class="info-section">
-                        <h4>Contact Information</h4>
-                        <div class="info-item">
-                            <i class="fas fa-envelope"></i>
-                            <span>${app.email}</span>
-                        </div>
-                        <div class="info-item">
-                            <i class="fas fa-phone"></i>
-                            <span>${app.phone}</span>
-                        </div>
-                        <div class="info-item">
-                            <i class="fas fa-university"></i>
-                            <span>${app.college}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="info-section">
-                        <h4>Team Details</h4>
-                        <div class="info-item">
-                            <i class="fas fa-users"></i>
-                            <span>Members: ${app.memberCount}</span>
-                        </div>
-                        <div class="info-item">
-                            <i class="fas fa-tag"></i>
-                            <span>Type: ${app.participationType || 'N/A'}</span>
-                        </div>
-                        <div class="info-item">
-                            <i class="fas fa-graduation-cap"></i>
-                            <span>Training: ${app.trainingOption || 'N/A'}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="info-section">
-                        <h4>Payment Details</h4>
-                        <div class="info-item">
-                            <i class="fas fa-credit-card"></i>
-                            <span>UTR: ${app.nationality === 'Foreign' ? 'No payment mode' : (app.utrNumber || 'Not provided')}</span>
-                        </div>
-                        <div class="info-item">
-                            <i class="fas fa-calendar"></i>
-                            <span>Registered: ${registrationDate}</span>
-                        </div>
-                        ${paymentLink ? `<div class="info-item">${paymentLink}</div>` : ''}
-                    </div>
+            </td>
+            <td>
+                <div class="action-menu">
+                    ${actionButtons}
                 </div>
-                
-                ${teamMembersHtml}
-                ${duplicateWarning}
-            </div>
-            
-            <div class="card-actions">
-                ${actionButtons}
-            </div>
-        </div>
+            </td>
+        </tr>
     `;
 }
 
@@ -380,6 +386,7 @@ async function updateStatus(id, status) {
         // Re-apply filters and update UI
         applyFilters();
         updateStatistics();
+        renderCharts();
         
         showToast(`Application ${status} successfully!`, 'success');
     } catch (error) {
@@ -394,7 +401,7 @@ async function deleteApplication(id, teamName) {
         const response = await fetch(`${API_BASE_URL}/applications/${id}`, { method: 'DELETE' });
         if (!response.ok) throw new Error('Delete failed');
         allApplications = allApplications.filter(app => app._id !== id);
-        await validateAllUTRs(); applyFilters(); updateStatistics();
+        await validateAllUTRs(); applyFilters(); updateStatistics(); renderCharts();
         showToast('Application deleted', 'success');
     } catch (error) { showToast(error.message, 'error'); }
 }
@@ -494,6 +501,7 @@ async function saveEdit() {
         await validateAllUTRs();
         applyFilters();
         updateStatistics();
+        renderCharts();
         
         closeEditModal();
         showToast('Application updated successfully!', 'success');
