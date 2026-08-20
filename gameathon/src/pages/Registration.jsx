@@ -315,17 +315,18 @@ export default function Registration() {
                   background: "var(--surface)",
                 }}
               >
-                <img 
-                  src="/upi-qr.png" 
-                  alt="UPI Payment QR Code" 
-                  style={{ width: "100%", maxWidth: "250px", height: "auto", borderRadius: "8px" }} 
-                />
+                <div style={{ background: '#fff', padding: '15px', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', marginBottom: '15px' }}>
+                  <img 
+                    src="/upi-qr.png" 
+                    alt="UPI Payment QR Code" 
+                    style={{ width: "100%", maxWidth: "180px", height: "auto", display: 'block' }} 
+                  />
+                </div>
                 <span
                   style={{
                     fontSize: "0.85rem",
                     color: "var(--text)",
                     textAlign: "center",
-                    marginTop: "15px",
                     fontWeight: "500"
                   }}
                 >
