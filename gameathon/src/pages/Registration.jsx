@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CheckCircle2, LoaderCircle, Users } from "lucide-react";
+import { CheckCircle2, LoaderCircle, Users, Lock } from "lucide-react";
 import { API_URL } from "../config";
 
 const initial = {
@@ -276,29 +276,40 @@ export default function Registration() {
           {step === 2 && (
           <div
             style={{
-              padding: "20px",
-              border: "1px solid var(--line)",
-              borderRadius: "8px",
+              padding: "25px",
+              border: "1px solid #00F0FF",
+              borderRadius: "4px",
               marginBottom: "20px",
-              background: "rgba(168,85,247,.04)",
+              background: "#0D0D12",
+              boxShadow: "0 0 20px rgba(0, 240, 255, 0.1), inset 0 0 10px rgba(0, 240, 255, 0.05)",
+              color: "#fff",
+              fontFamily: "monospace"
             }}
           >
-            <h3
-              style={{
-                marginBottom: "15px",
-                fontSize: "1.1rem",
-                color: "var(--accent)",
-                textTransform: "uppercase",
-              }}
-            >
-              Payment Details - Amount: ₹{getPrice()}
-            </h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(0, 240, 255, 0.3)', paddingBottom: '15px', marginBottom: '20px' }}>
+              <h3
+                style={{
+                  fontSize: "1.2rem",
+                  color: "#00F0FF",
+                  textTransform: "uppercase",
+                  margin: 0,
+                  letterSpacing: "1px",
+                  textShadow: "0 0 10px rgba(0, 240, 255, 0.5)"
+                }}
+              >
+                ENCRYPTED GATEWAY // PAYMENT_PENDING
+              </h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#00F0FF', fontSize: '0.8rem', opacity: 0.8 }}>
+                <Lock size={14} /> SECURE
+              </div>
+            </div>
+            
             <div
               style={{
                 display: "flex",
                 flexWrap: "wrap",
-                gap: "20px",
-                alignItems: "flex-start",
+                gap: "30px",
+                alignItems: "center",
               }}
             >
               <div
@@ -309,57 +320,78 @@ export default function Registration() {
                   flexDirection: "column",
                   alignItems: "center",
                   justifyContent: "center",
-                  padding: "30px",
-                  border: "1px dashed var(--accent)",
-                  borderRadius: "8px",
-                  background: "var(--surface)",
+                  position: "relative"
                 }}
               >
-                <div style={{ background: '#fff', padding: '15px', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', marginBottom: '15px' }}>
+                <div style={{ 
+                  background: '#fff', 
+                  padding: '12px', 
+                  borderRadius: '8px', 
+                  boxShadow: '0 0 25px rgba(0,240,255,0.4), 0 0 50px rgba(0,240,255,0.2)', 
+                  marginBottom: '15px',
+                  border: '2px solid #00F0FF',
+                  position: 'relative'
+                }}>
+                  <div style={{ position: 'absolute', top: '-10px', left: '50%', transform: 'translateX(-50%)', background: '#0D0D12', padding: '0 10px', color: '#00F0FF', fontSize: '0.7rem', border: '1px solid #00F0FF', borderRadius: '4px' }}>SECURE CONNECTION</div>
                   <img 
                     src="/upi-qr.png" 
                     alt="UPI Payment QR Code" 
                     style={{ width: "100%", maxWidth: "180px", height: "auto", display: 'block' }} 
                   />
+                  <div style={{ borderTop: '2px dashed #00F0FF', marginTop: '10px', paddingTop: '10px', textAlign: 'center', color: '#000', fontWeight: 'bold', fontSize: '0.8rem', letterSpacing: '2px' }}>
+                    SCAN_TO_PAY
+                  </div>
                 </div>
-                <span
-                  style={{
-                    fontSize: "0.85rem",
-                    color: "var(--text)",
-                    textAlign: "center",
-                    fontWeight: "500"
-                  }}
-                >
-                  Scan to pay with any UPI app
-                </span>
               </div>
-              <div style={{ flex: "2", minWidth: "250px" }}>
-                <p
-                  style={{
-                    fontSize: "0.85rem",
-                    color: "var(--muted)",
-                    marginBottom: "15px",
-                  }}
-                >
-                  Please scan the QR code to complete the registration fee
-                  payment of <strong>₹{getPrice()}</strong>. Enter your
-                  transaction UTR number below.
-                </p>
-                <Field
-                  label="Transaction UTR Number"
+              
+              <div style={{ flex: "1.5", minWidth: "250px" }}>
+                <div style={{ background: 'rgba(0, 240, 255, 0.05)', padding: '15px', borderRadius: '4px', borderLeft: '3px solid #00F0FF', marginBottom: '20px' }}>
+                  <p style={{ margin: 0, fontSize: '0.9rem', color: '#A0AEC0', lineHeight: '1.6' }}>
+                    [SYS] Polling gateway interface...<br/>
+                    [SYS] Handshake init to NODE_77...<br/>
+                    [CRIT] Complete payment of <strong style={{color: '#FF003C'}}>₹{getPrice()}</strong> to unlock tunnel.
+                  </p>
+                </div>
+                
+                <div style={{ marginBottom: "15px", display: 'flex', justifyContent: 'space-between', color: '#00F0FF', fontSize: '0.85rem' }}>
+                  <span>12-DIGIT UTR HASH</span>
+                  <span style={{ color: '#FF003C' }}>REQUIRED</span>
+                </div>
+                
+                <input
                   name="utrNumber"
                   value={form.utrNumber}
                   onChange={change}
-                  placeholder="Enter 12-digit UTR"
+                  placeholder="XXXX-XXXX-XXXX"
                   pattern="[0-9]{12}"
                   maxLength="12"
                   minLength="12"
                   title="Please enter a valid 12-digit UTR number"
                   required={true}
+                  style={{
+                    width: '100%',
+                    background: '#0D0D12',
+                    border: '1px solid rgba(0, 240, 255, 0.5)',
+                    borderLeft: '4px solid #00F0FF',
+                    borderRight: '4px solid #00F0FF',
+                    padding: '12px 15px',
+                    color: '#00F0FF',
+                    fontFamily: 'monospace',
+                    fontSize: '1rem',
+                    outline: 'none',
+                    letterSpacing: '2px',
+                    textAlign: 'center',
+                    marginBottom: '5px'
+                  }}
+                  onFocus={(e) => e.target.style.boxShadow = '0 0 15px rgba(0,240,255,0.3)'}
+                  onBlur={(e) => e.target.style.boxShadow = 'none'}
                 />
+                <div style={{ textAlign: 'center', fontSize: '0.7rem', color: '#A0AEC0', marginTop: '10px' }}>
+                  {form.utrNumber.length === 12 ? <span style={{color: '#00F0FF'}}>HASH_VALIDATED // READY</span> : 'AWAITING_INPUT'}
                 </div>
               </div>
             </div>
+          </div>
           )}
 
 
@@ -387,25 +419,25 @@ export default function Registration() {
               <button
                 type="button"
                 className="btn btn-secondary"
-                style={{ flex: '1', background: 'var(--surface)', color: 'var(--text)', border: '1px solid var(--line)' }}
+                style={{ flex: '1', background: 'transparent', color: '#00F0FF', border: '1px solid #00F0FF', fontFamily: 'monospace', textTransform: 'uppercase' }}
                 onClick={() => setStep(1)}
                 disabled={state.busy}
               >
-                Back
+                {"< ABORT"}
               </button>
               <button
                 className="btn btn-primary"
-                style={{ flex: '2' }}
+                style={{ flex: '2', background: '#FCEE09', color: '#0D0D12', border: 'none', fontFamily: 'monospace', textTransform: 'uppercase', fontWeight: 'bold' }}
                 type="submit"
-                disabled={state.busy}
+                disabled={state.busy || form.utrNumber.length !== 12}
               >
                 {state.busy ? (
                   <>
-                    <LoaderCircle className="spin" size={18} /> Sending...
+                    <LoaderCircle className="spin" size={18} /> PROCESSING...
                   </>
                 ) : (
                   <>
-                    <CheckCircle2 size={18} /> Submit Registration
+                    <CheckCircle2 size={18} /> VERIFY TRANSACTION
                   </>
                 )}
               </button>
