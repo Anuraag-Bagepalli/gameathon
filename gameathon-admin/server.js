@@ -4,6 +4,7 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import nodemailer from 'nodemailer';
+import 'dotenv/config';
 
 // ES6 module dirname equivalent
 const __filename = fileURLToPath(import.meta.url);
@@ -20,8 +21,8 @@ if (!MONGODB_URI) throw new Error('MONGODB_URI is required');
 const EMAIL_CONFIG = {
   service: 'gmail', // or your preferred email service
   auth: {
-    user: process.env.EMAIL_USER || '1jt23is006@jyothyit.ac.in',
-    pass: process.env.EMAIL_APP_PASSWORD || ''
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_APP_PASSWORD
   }
 };
 
