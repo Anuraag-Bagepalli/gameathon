@@ -277,29 +277,29 @@ export default function Registration() {
           <div
             style={{
               padding: "25px",
-              border: "1px solid #00F0FF",
-              borderRadius: "4px",
+              border: "1px solid var(--accent)",
+              borderRadius: "8px",
               marginBottom: "20px",
-              background: "#0D0D12",
-              boxShadow: "0 0 20px rgba(0, 240, 255, 0.1), inset 0 0 10px rgba(0, 240, 255, 0.05)",
-              color: "#fff",
+              background: "rgba(168,85,247,.04)",
+              boxShadow: "0 0 20px rgba(168, 85, 247, 0.15), inset 0 0 10px rgba(168, 85, 247, 0.05)",
+              color: "var(--text)",
               fontFamily: "monospace"
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(0, 240, 255, 0.3)', paddingBottom: '15px', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(168, 85, 247, 0.3)', paddingBottom: '15px', marginBottom: '20px' }}>
               <h3
                 style={{
                   fontSize: "1.2rem",
-                  color: "#00F0FF",
+                  color: "var(--accent)",
                   textTransform: "uppercase",
                   margin: 0,
                   letterSpacing: "1px",
-                  textShadow: "0 0 10px rgba(0, 240, 255, 0.5)"
+                  textShadow: "0 0 10px rgba(168, 85, 247, 0.5)"
                 }}
               >
                 ENCRYPTED GATEWAY // PAYMENT_PENDING
               </h3>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#00F0FF', fontSize: '0.8rem', opacity: 0.8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'var(--accent)', fontSize: '0.8rem', opacity: 0.8 }}>
                 <Lock size={14} /> SECURE
               </div>
             </div>
@@ -327,33 +327,32 @@ export default function Registration() {
                   background: '#fff', 
                   padding: '12px', 
                   borderRadius: '8px', 
-                  boxShadow: '0 0 25px rgba(0,240,255,0.4), 0 0 50px rgba(0,240,255,0.2)', 
+                  boxShadow: '0 0 25px rgba(168, 85, 247, 0.4), 0 0 50px rgba(168, 85, 247, 0.2)', 
                   marginBottom: '15px',
-                  border: '2px solid #00F0FF',
+                  border: '2px solid var(--accent)',
                   position: 'relative'
                 }}>
-                  <div style={{ position: 'absolute', top: '-10px', left: '50%', transform: 'translateX(-50%)', background: '#0D0D12', padding: '0 10px', color: '#00F0FF', fontSize: '0.7rem', border: '1px solid #00F0FF', borderRadius: '4px' }}>SECURE CONNECTION</div>
                   <img 
                     src="/upi-qr.png" 
                     alt="UPI Payment QR Code" 
                     style={{ width: "100%", maxWidth: "180px", height: "auto", display: 'block' }} 
                   />
-                  <div style={{ borderTop: '2px dashed #00F0FF', marginTop: '10px', paddingTop: '10px', textAlign: 'center', color: '#000', fontWeight: 'bold', fontSize: '0.8rem', letterSpacing: '2px' }}>
+                  <div style={{ borderTop: '2px dashed var(--accent)', marginTop: '10px', paddingTop: '10px', textAlign: 'center', color: '#000', fontWeight: 'bold', fontSize: '0.8rem', letterSpacing: '2px' }}>
                     SCAN_TO_PAY
                   </div>
                 </div>
               </div>
               
               <div style={{ flex: "1.5", minWidth: "250px" }}>
-                <div style={{ background: 'rgba(0, 240, 255, 0.05)', padding: '15px', borderRadius: '4px', borderLeft: '3px solid #00F0FF', marginBottom: '20px' }}>
-                  <p style={{ margin: 0, fontSize: '0.9rem', color: '#A0AEC0', lineHeight: '1.6' }}>
+                <div style={{ background: 'var(--surface)', padding: '15px', borderRadius: '4px', borderLeft: '3px solid var(--accent)', marginBottom: '20px' }}>
+                  <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--muted)', lineHeight: '1.6' }}>
                     [SYS] Polling gateway interface...<br/>
                     [SYS] Handshake init to NODE_77...<br/>
                     [CRIT] Complete payment of <strong style={{color: '#FF003C'}}>₹{getPrice()}</strong> to unlock tunnel.
                   </p>
                 </div>
                 
-                <div style={{ marginBottom: "15px", display: 'flex', justifyContent: 'space-between', color: '#00F0FF', fontSize: '0.85rem' }}>
+                <div style={{ marginBottom: "15px", display: 'flex', justifyContent: 'space-between', color: 'var(--accent)', fontSize: '0.85rem' }}>
                   <span>12-DIGIT UTR HASH</span>
                   <span style={{ color: '#FF003C' }}>REQUIRED</span>
                 </div>
@@ -370,12 +369,12 @@ export default function Registration() {
                   required={true}
                   style={{
                     width: '100%',
-                    background: '#0D0D12',
-                    border: '1px solid rgba(0, 240, 255, 0.5)',
-                    borderLeft: '4px solid #00F0FF',
-                    borderRight: '4px solid #00F0FF',
+                    background: 'var(--surface)',
+                    border: '1px solid rgba(168, 85, 247, 0.5)',
+                    borderLeft: '4px solid var(--accent)',
+                    borderRight: '4px solid var(--accent)',
                     padding: '12px 15px',
-                    color: '#00F0FF',
+                    color: 'var(--accent)',
                     fontFamily: 'monospace',
                     fontSize: '1rem',
                     outline: 'none',
@@ -383,11 +382,11 @@ export default function Registration() {
                     textAlign: 'center',
                     marginBottom: '5px'
                   }}
-                  onFocus={(e) => e.target.style.boxShadow = '0 0 15px rgba(0,240,255,0.3)'}
+                  onFocus={(e) => e.target.style.boxShadow = '0 0 15px rgba(168, 85, 247, 0.3)'}
                   onBlur={(e) => e.target.style.boxShadow = 'none'}
                 />
-                <div style={{ textAlign: 'center', fontSize: '0.7rem', color: '#A0AEC0', marginTop: '10px' }}>
-                  {form.utrNumber.length === 12 ? <span style={{color: '#00F0FF'}}>HASH_VALIDATED // READY</span> : 'AWAITING_INPUT'}
+                <div style={{ textAlign: 'center', fontSize: '0.7rem', color: 'var(--muted)', marginTop: '10px' }}>
+                  {form.utrNumber.length === 12 ? <span style={{color: 'var(--accent)'}}>HASH_VALIDATED // READY</span> : 'AWAITING_INPUT'}
                 </div>
               </div>
             </div>
@@ -419,7 +418,7 @@ export default function Registration() {
               <button
                 type="button"
                 className="btn btn-secondary"
-                style={{ flex: '1', background: 'transparent', color: '#00F0FF', border: '1px solid #00F0FF', fontFamily: 'monospace', textTransform: 'uppercase' }}
+                style={{ flex: '1', background: 'transparent', color: 'var(--accent)', border: '1px solid var(--accent)', fontFamily: 'monospace', textTransform: 'uppercase' }}
                 onClick={() => setStep(1)}
                 disabled={state.busy}
               >
@@ -427,7 +426,7 @@ export default function Registration() {
               </button>
               <button
                 className="btn btn-primary"
-                style={{ flex: '2', background: '#FCEE09', color: '#0D0D12', border: 'none', fontFamily: 'monospace', textTransform: 'uppercase', fontWeight: 'bold' }}
+                style={{ flex: '2', background: 'var(--accent)', color: '#fff', border: 'none', fontFamily: 'monospace', textTransform: 'uppercase', fontWeight: 'bold' }}
                 type="submit"
                 disabled={state.busy || form.utrNumber.length !== 12}
               >
