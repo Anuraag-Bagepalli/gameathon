@@ -29,12 +29,11 @@ const EMAIL_CONFIG = {
 // WhatsApp Group Link - UPDATE THIS WITH YOUR GROUP LINK
 const WHATSAPP_GROUP_LINK = 'https://chat.whatsapp.com/your-group-invite-link';
 
-// Event/Competition Details - UPDATE THESE
 const EVENT_CONFIG = {
   eventName: 'Gameathon 8.0',
   organizerName: 'Gameathon Team',
   organizerEmail: '',
-  eventDate: 'Coming soon · 2026',
+  eventDate: '23-24 Oct 2026',
   venue: 'Jyothy Institute of Technology, Thataguni, Bengaluru'
 };
 
@@ -776,3 +775,5 @@ process.on('SIGINT', () => {
     process.exit(0);
   });
 });
+
+export default app;

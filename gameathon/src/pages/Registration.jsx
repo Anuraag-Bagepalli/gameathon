@@ -19,6 +19,7 @@ const initial = {
 export default function Registration() {
   const [form, setForm] = useState(initial);
   const [state, setState] = useState({ busy: false, type: "", text: "" });
+  const [step, setStep] = useState(1);
 
   const change = (e) => {
     const { name, value } = e.target;
@@ -53,6 +54,12 @@ export default function Registration() {
 
   const submit = async (e) => {
     e.preventDefault();
+    if (step === 1) {
+      setStep(2);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    
     setState({ busy: true, type: "", text: "" });
 
     try {
@@ -109,7 +116,9 @@ export default function Registration() {
           </div>
           */}
 
-          <div className="form-row">
+          {step === 1 && (
+            <>
+              <div className="form-row">
             <Field
               label="Team name"
               name="teamName"
@@ -261,8 +270,10 @@ export default function Registration() {
               />
             ))}
           </div>
+            </>
+          )}
 
-          {/* form.nationality === 'Indian' ? ( */}
+          {step === 2 && (
           <div
             style={{
               padding: "20px",
@@ -343,43 +354,60 @@ export default function Registration() {
                   title="Please enter a valid 12-digit UTR number"
                   required={true}
                 />
+                </div>
               </div>
             </div>
-          </div>
-          {/* ) : (
-             <div className="interest-note" style={{ padding: '20px', border: '1px solid var(--line)', borderRadius: '8px', marginBottom: '20px', background: 'var(--surface)' }}>
-               <Users />
-               <div>
-                 <strong>Foreign National Registration</strong>
-                 <p>No payment mode required. Submit your registration and we'll process your application.</p>
-               </div>
-             </div>
-          )} */}
+          )}
 
-          <label className="consent">
-            <input type="checkbox" required /> I confirm that these contact and
-            team details are accurate.
-          </label>
+
+          {step === 2 && (
+            <label className="consent">
+              <input type="checkbox" required /> I confirm that these contact and
+              team details are accurate.
+            </label>
+          )}
 
           {state.text && (
             <div className={`form-message ${state.type}`} style={{ marginTop: '20px', marginBottom: '0' }}>{state.text}</div>
           )}
 
-          <button
-            className="btn btn-primary"
-            style={{ width: "100%", marginTop: 22 }}
-            disabled={state.busy}
-          >
-            {state.busy ? (
-              <>
-                <LoaderCircle className="spin" size={18} /> Sending...
-              </>
-            ) : (
-              <>
-                <CheckCircle2 size={18} /> Submit Registration
-              </>
-            )}
-          </button>
+          {step === 1 ? (
+            <button
+              className="btn btn-primary"
+              style={{ width: "100%", marginTop: 22 }}
+              type="submit"
+            >
+              Proceed to Payment
+            </button>
+          ) : (
+            <div style={{ display: 'flex', gap: '15px', marginTop: 22 }}>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                style={{ flex: '1', background: 'var(--surface)', color: 'var(--text)', border: '1px solid var(--line)' }}
+                onClick={() => setStep(1)}
+                disabled={state.busy}
+              >
+                Back
+              </button>
+              <button
+                className="btn btn-primary"
+                style={{ flex: '2' }}
+                type="submit"
+                disabled={state.busy}
+              >
+                {state.busy ? (
+                  <>
+                    <LoaderCircle className="spin" size={18} /> Sending...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 size={18} /> Submit Registration
+                  </>
+                )}
+              </button>
+            </div>
+          )}
         </form>
       </div>
     </main>
