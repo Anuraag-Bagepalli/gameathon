@@ -92,9 +92,6 @@ export default function Registration() {
         </header>
 
         <form className="registration-form card" onSubmit={submit}>
-          {state.text && (
-            <div className={`form-message ${state.type}`}>{state.text}</div>
-          )}
 
           {/*
           <div className="form-group">
@@ -133,7 +130,10 @@ export default function Registration() {
               label="Phone"
               name="phone"
               type="tel"
-              pattern="[0-9+ -]{10,15}"
+              pattern="[0-9]{10}"
+              maxLength="10"
+              minLength="10"
+              title="Please enter a valid 10-digit phone number"
               value={form.phone}
               onChange={change}
             />
@@ -337,6 +337,10 @@ export default function Registration() {
                   value={form.utrNumber}
                   onChange={change}
                   placeholder="Enter 12-digit UTR"
+                  pattern="[0-9]{12}"
+                  maxLength="12"
+                  minLength="12"
+                  title="Please enter a valid 12-digit UTR number"
                   required={true}
                 />
               </div>
@@ -356,6 +360,10 @@ export default function Registration() {
             <input type="checkbox" required /> I confirm that these contact and
             team details are accurate.
           </label>
+
+          {state.text && (
+            <div className={`form-message ${state.type}`} style={{ marginTop: '20px', marginBottom: '0' }}>{state.text}</div>
+          )}
 
           <button
             className="btn btn-primary"

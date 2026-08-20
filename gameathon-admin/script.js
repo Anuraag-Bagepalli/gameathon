@@ -505,7 +505,7 @@ function clearFilters() {
 // Silent fetch to update data in the background without showing loaders
 async function fetchApplicationsSilent() {
     try {
-        const response = await fetch(`${API_BASE_URL}/applications`);
+        const response = await fetch(`${API_BASE_URL}/applications?_t=${Date.now()}`);
         if (!response.ok) return;
         
         allApplications = await response.json();
@@ -526,6 +526,13 @@ async function fetchApplicationsSilent() {
 
 // Update application status
 async function updateStatus(id, status) {
+    // Optimistic UI Update: Update the local array and re-render instantly
+    const appIndex = allApplications.findIndex(a => a._id === id);
+    if (appIndex !== -1) {
+        allApplications[appIndex].status = status;
+        applyFilters(); 
+    }
+
     try {
         const response = await fetch(`${API_BASE_URL}/applications/${id}/status`, {
             method: 'PATCH',
@@ -549,8 +556,27 @@ async function updateStatus(id, status) {
     }
 }
 
+let confirmResolver = null;
+
+function customConfirm(message) {
+    return new Promise((resolve) => {
+        document.getElementById('confirmMessage').innerText = message;
+        document.getElementById('confirmModal').style.display = 'block';
+        confirmResolver = resolve;
+    });
+}
+
+function closeConfirmModal(result = false) {
+    document.getElementById('confirmModal').style.display = 'none';
+    if (confirmResolver) {
+        confirmResolver(result);
+        confirmResolver = null;
+    }
+}
+
 async function deleteApplication(id, teamName) {
-    if (!window.confirm(`Delete ${teamName || 'this application'}? This cannot be undone.`)) return;
+    const confirmed = await customConfirm(`Delete ${teamName || 'this application'}? This cannot be undone.`);
+    if (!confirmed) return;
     try {
         const response = await fetch(`${API_BASE_URL}/applications/${id}`, { method: 'DELETE' });
         if (!response.ok) throw new Error('Delete failed');
@@ -733,8 +759,12 @@ function showToast(message, type = 'info') {
 // Close modal and sidebars when clicking outside
 window.onclick = function(event) {
     const modal = document.getElementById('editModal');
+    const confirmModal = document.getElementById('confirmModal');
     if (event.target === modal) {
         closeEditModal();
+    }
+    if (event.target === confirmModal) {
+        closeConfirmModal(false);
     }
     
     // Close sidebar on mobile

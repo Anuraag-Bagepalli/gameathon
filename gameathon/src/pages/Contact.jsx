@@ -74,13 +74,6 @@ export default function Contact() {
             </div>
           </div>
           <form className="card" onSubmit={submit}>
-            {state.text && (
-              <div
-                className={`form-message ${state.error ? "error" : "success"}`}
-              >
-                {state.text}
-              </div>
-            )}
             <div className="form-row">
               <Field label="Name" name="name" value={form.name} set={setForm} />
               <Field
@@ -108,6 +101,14 @@ export default function Contact() {
                 }
               />
             </div>
+            {state.text && (
+              <div
+                className={`form-message ${state.error ? "error" : "success"}`}
+                style={{ marginTop: '10px', marginBottom: '20px' }}
+              >
+                {state.text}
+              </div>
+            )}
             <button className="btn btn-primary" disabled={state.busy}>
               <Send size={17} />
               {state.busy ? "Sending..." : "Send message"}
