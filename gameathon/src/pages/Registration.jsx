@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CheckCircle2, LoaderCircle, Users, QrCode } from "lucide-react";
+import { CheckCircle2, LoaderCircle, Users } from "lucide-react";
 import { API_URL } from "../config";
 
 const initial = {
@@ -315,19 +315,21 @@ export default function Registration() {
                   background: "var(--surface)",
                 }}
               >
-                <QrCode
-                  size={48}
-                  color="var(--accent)"
-                  style={{ opacity: 0.5, marginBottom: "10px" }}
+                <img 
+                  src="/upi-qr.png" 
+                  alt="UPI Payment QR Code" 
+                  style={{ width: "100%", maxWidth: "250px", height: "auto", borderRadius: "8px" }} 
                 />
                 <span
                   style={{
-                    fontSize: "0.8rem",
-                    color: "var(--muted)",
+                    fontSize: "0.85rem",
+                    color: "var(--text)",
                     textAlign: "center",
+                    marginTop: "15px",
+                    fontWeight: "500"
                   }}
                 >
-                  [UPI QR Placeholder]
+                  Scan to pay with any UPI app
                 </span>
               </div>
               <div style={{ flex: "2", minWidth: "250px" }}>
